@@ -55,8 +55,8 @@ function getPracticeSelection(){
   return [...$("#practiceQuery").querySelectorAll(".query-block")].map(block => block.dataset.text);
 }
 
-function addPracticeBlock(text){
-  $(".practice-query .drop-placeholder")?.remove();
+function addPracticeBlock(text, before=null){
+  $("#practiceQuery .drop-placeholder")?.remove();
   const original = practiceExercises[currentExercise].blocks.find(block => block[0] === text);
   const block = makeBlock(text, original ? original[1] : "", true);
   block.querySelector(".remove").onclick = () => {
@@ -67,7 +67,7 @@ function addPracticeBlock(text){
     savePracticeAnswer();
   };
   block.addEventListener("dragend", savePracticeAnswer);
-  $("#practiceQuery").appendChild(block);
+  $("#practiceQuery").insertBefore(block, before);
 }
 
 function renderPracticeEvidence(){
@@ -96,19 +96,32 @@ function choosePracticeBlock(text){
 function resetPractice(){
   practiceSelection = savedPracticeAnswers[currentExercise] ? [...savedPracticeAnswers[currentExercise]] : [];
   $("#practiceQuery").innerHTML = '<span class="drop-placeholder">ลากบล็อก SQL มาวางที่นี่…</span>';
-  practiceSelection.forEach(addPracticeBlock);
+  practiceSelection.forEach(text => addPracticeBlock(text));
   if(practiceSelection.length) $("#practiceQuery .drop-placeholder")?.remove();
   $("#practiceFeedback").textContent = practiceCompleted.includes(currentExercise) ? "เคยผ่านแบบฝึกนี้แล้ว สามารถปรับคำตอบได้" : "ลากบล็อกมาวางในกรอบ";
   $("#practiceFeedback").className = "muted";
   $("#practiceResult").hidden = true;
+  $("#practiceNext").hidden = true;
   $("#practiceBlocks").classList.remove("complete");
   renderPracticeBlocks();
   renderPracticeEvidence();
 }
 
 function savePracticeAnswer(){
-  savedPracticeAnswers[currentExercise] = getPracticeSelection();
+  practiceSelection = getPracticeSelection();
+  savedPracticeAnswers[currentExercise] = [...practiceSelection];
   localStorage.setItem("sql-detective-practice-answers", JSON.stringify(savedPracticeAnswers));
+}
+
+function clearPracticeAnswer(){
+  practiceSelection = [];
+  delete savedPracticeAnswers[currentExercise];
+  localStorage.setItem("sql-detective-practice-answers", JSON.stringify(savedPracticeAnswers));
+  $("#practiceQuery").innerHTML = '<span class="drop-placeholder">ลากบล็อก SQL มาวางที่นี่…</span>';
+  $("#practiceFeedback").textContent = "ล้างคำตอบแล้ว ลองประกอบใหม่ได้เลย";
+  $("#practiceFeedback").className = "muted";
+  $("#practiceResult").hidden = true;
+  $("#practiceNext").hidden = true;
 }
 
 $("#practiceQuery").addEventListener("dragover", e => {
@@ -126,7 +139,11 @@ $("#practiceQuery").addEventListener("drop", e => {
   e.preventDefault();
   $("#practiceQuery").classList.remove("dragover");
   const text = e.dataTransfer.getData("text/plain");
-  if(text && !$("#practiceQuery .query-block.dragging")) addPracticeBlock(text);
+  const dragging = $("#practiceQuery .query-block.dragging");
+  if(text && !dragging){
+    const before = getDragAfterElement($("#practiceQuery"), e.clientX, e.clientY);
+    addPracticeBlock(text, before);
+  }
   practiceSelection = getPracticeSelection();
   savePracticeAnswer();
 });
@@ -148,7 +165,6 @@ function updateProgress(){
   const total = caseIds.length + practiceExercises.length;
   $("#progressText").textContent = `${completed} / ${total} MISSIONS COMPLETE`;
   $("#progressBar").style.width = `${completed / total * 100}%`;
-  $("#practiceNext").hidden = practiceCompleted.length < practiceExercises.length;
   document.querySelectorAll(".case-card").forEach(card => {
     card.classList.toggle("locked", practiceCompleted.length < practiceExercises.length);
     const action = card.querySelector(".card-action");
@@ -271,10 +287,11 @@ function clearQuery(){
   $("#resultStatus").textContent = "รอการรัน";
 }
 
-function addQueryBlock(text){
-  $(".drop-placeholder")?.remove();
+function addQueryBlock(text, before=null){
+  $("#queryDrop .drop-placeholder")?.remove();
   const original = currentCase.blocks.find(b => b[0] === text);
-  $("#queryDrop").appendChild(makeBlock(text, original ? original[1] : "", true));
+  const block = makeBlock(text, original ? original[1] : "", true);
+  $("#queryDrop").insertBefore(block, before);
 }
 
 $("#queryDrop").addEventListener("dragover", e => {e.preventDefault(); $("#queryDrop").classList.add("dragover")});
@@ -283,7 +300,11 @@ $("#queryDrop").addEventListener("drop", e => {
   e.preventDefault();
   $("#queryDrop").classList.remove("dragover");
   const text = e.dataTransfer.getData("text/plain");
-  if(text) addQueryBlock(text);
+  const dragging = $("#queryDrop .query-block.dragging");
+  if(text && !dragging){
+    const before = getDragAfterElement($("#queryDrop"), e.clientX, e.clientY);
+    addQueryBlock(text, before);
+  }
 });
 
 $("#blockBank").addEventListener("dragstart", e => {
@@ -301,7 +322,7 @@ $("#queryDrop").addEventListener("dragstart", e => {
 
 $("#queryDrop").addEventListener("dragover", e => {
   e.preventDefault();
-  const dragging = document.querySelector(".query-block.dragging");
+  const dragging = $("#queryDrop .query-block.dragging");
   if(dragging){
     const after = getDragAfterElement($("#queryDrop"), e.clientX, e.clientY);
     if(after == null) $("#queryDrop").appendChild(dragging);
@@ -311,12 +332,28 @@ $("#queryDrop").addEventListener("dragover", e => {
 
 function getDragAfterElement(container, x, y){
   const els = [...container.querySelectorAll(".query-block:not(.dragging)")];
-  return els.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    if(offset < 0 && offset > closest.offset) return {offset, element:child};
-    return closest;
-  }, {offset:Number.NEGATIVE_INFINITY}).element;
+  if(!els.length) return null;
+
+  const rows = [];
+  els.forEach(element => {
+    const box = element.getBoundingClientRect();
+    let row = rows.find(candidate => Math.abs(candidate.top - box.top) < 4);
+    if(!row){
+      row = {top:box.top, bottom:box.bottom, elements:[]};
+      rows.push(row);
+    }
+    row.bottom = Math.max(row.bottom, box.bottom);
+    row.elements.push({element, box});
+  });
+
+  const rowIndex = rows.findIndex(row => y <= row.bottom);
+  if(rowIndex === -1) return null;
+
+  const row = rows[rowIndex];
+  const nextInRow = row.elements.find(({box}) => x < box.left + box.width / 2);
+  if(nextInRow) return nextInRow.element;
+
+  return rows[rowIndex + 1]?.elements[0]?.element || null;
 }
 
 $("#runBtn").onclick = async () => {
@@ -362,11 +399,6 @@ function showResult(correct, message, error=false, data=null){
   }
 }
 
-$("#starterBtn").onclick = () => {
-  clearQuery();
-  currentCase.starter.forEach(addQueryBlock);
-};
-
 $("#clearBtn").onclick = clearQuery;
 $("#backBtn").onclick = () => {
   $("#caseScreen").classList.remove("active");
@@ -384,12 +416,21 @@ $("#closeTutorialBtn").onclick = closeTutorial;
 $("#closeTutorialSecondaryBtn").onclick = closeTutorial;
 $("#startTutorialBtn").onclick = startTutorial;
 $("#practiceBackBtn").onclick = showHome;
-$("#practiceCasesBtn").onclick = showHome;
-$("#practiceResetBtn").onclick = resetPractice;
+$("#practiceCasesBtn").onclick = () => {
+  if(currentExercise < practiceExercises.length - 1){
+    selectExercise(currentExercise + 1);
+    $("#practiceMission").scrollIntoView({behavior:"smooth", block:"center"});
+  }else{
+    showHome();
+  }
+};
+$("#practiceResetBtn").onclick = clearPracticeAnswer;
 $("#practiceCheckBtn").onclick = () => {
   const result = $("#practiceResult");
   result.hidden = false;
   const answer = practiceExercises[currentExercise].answer;
+  practiceSelection = getPracticeSelection();
+  savePracticeAnswer();
   const isCorrect = practiceSelection.length === answer.length && practiceSelection.every((block, index) => block === answer[index]);
   if(isCorrect){
     result.className = "practice-result success";
@@ -398,10 +439,15 @@ $("#practiceCheckBtn").onclick = () => {
     const output = practiceExercises[currentExercise].output;
     result.innerHTML = `<div class="practice-success-message">${escapeHtml(result.textContent)}</div><div class="practice-output-title">QUERY OUTPUT</div><table><thead><tr>${output.columns.map(column => `<th>${escapeHtml(column)}</th>`).join("")}</tr></thead><tbody>${output.rows.map(row => `<tr>${row.map(value => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     localStorage.setItem("sql-detective-practice-completed", JSON.stringify(practiceCompleted));
+    $("#practiceNextText").textContent = currentExercise < practiceExercises.length - 1 ? "พร้อมไปข้อต่อไปไหม?" : "Tutorial ครบแล้ว!";
+    $("#practiceCasesBtn").textContent = currentExercise < practiceExercises.length - 1 ? "ข้อต่อไป →" : "ไปเลือกคดีจริง →";
+    $("#practiceNext").hidden = false;
     updateProgress();
   }else{
     result.className = "practice-result failure";
-    result.textContent = `ยังไม่ครบ ลองเลือกอีก ${practiceExercises[currentExercise].answer.length - practiceSelection.length} บล็อก`;
+    const missingBlocks = practiceExercises[currentExercise].answer.length - practiceSelection.length;
+    result.textContent = missingBlocks > 0 ? `ยังไม่ครบ ลองเลือกอีก ${missingBlocks} บล็อก` : "คำตอบยังไม่ถูก ลองตรวจสอบลำดับของบล็อกอีกครั้ง";
+    $("#practiceNext").hidden = true;
   }
 };
 document.querySelectorAll(".exercise-choice").forEach(button => {

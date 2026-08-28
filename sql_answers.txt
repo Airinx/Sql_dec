@@ -1,0 +1,64 @@
+เฉลย SQL Detective
+==================
+
+แบบฝึก SQL
+-----------
+
+ข้อ 1: ค้นหาชื่อจากตาราง people ที่มี id เป็น 2
+
+SELECT name FROM people WHERE id = 2;
+
+ผลลัพธ์: Nami
+
+
+ข้อ 2: ค้นหา action จากตาราง events ที่ item เป็น Red notebook
+
+SELECT action FROM events WHERE item = 'Red notebook';
+
+ผลลัพธ์:
+- opened
+- borrowed
+
+
+ข้อ 3: ค้นหาชื่อคนจาก people และเรียงตามชื่อ
+
+SELECT name FROM people ORDER BY name;
+
+ผลลัพธ์:
+- Mali
+- Rune
+- Vela
+
+
+คดีจริง
+-------
+
+CASE 1: เจไดไปหนายยยย?
+
+SELECT p.name, e.action, e.location
+FROM events e
+JOIN people p ON e.person_id = p.id
+WHERE e.item = 'Jedi'
+  AND e.action = 'carried';
+
+ผลลัพธ์: Anakin | carried | Lobby
+
+
+CASE 2: ใครขโมยแว่นของ Harry Potter?
+
+SELECT p.name AS person
+FROM events e
+JOIN people p ON e.person_id = p.id
+WHERE e.item = 'Harry Potter glasses'
+  AND e.action = 'took';
+
+ผลลัพธ์: Draco Malfoy
+
+
+CASE 3: ใครเนียนเป็นเด็ก KDAI?
+
+SELECT name
+FROM card_scans
+WHERE name NOT IN (SELECT name FROM students);
+
+ผลลัพธ์: Indy

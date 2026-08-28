@@ -4,33 +4,45 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SQL Detective</title>
+  <meta name="description" content="เกมฝึก SQL ผ่านภารกิจสืบสวนแบบ interactive">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="scanlines"></div>
+<div class="ambient-glow" aria-hidden="true"></div>
 
 <header class="topbar">
-  <div class="brand">🕵️ <span>SQL</span> DETECTIVE</div>
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">S</span>
+    <span class="brand-name">SQL Detective</span>
+    <span class="brand-edition">K-DAI Lab</span>
+  </div>
   <div class="topbar-actions">
-    <button id="tutorialBtn" class="tutorial-btn">? วิธีเล่น</button>
-    <div class="status"><span class="dot"></span> DATABASE ONLINE</div>
+    <button id="tutorialBtn" class="tutorial-btn"><span aria-hidden="true">?</span> วิธีเล่น</button>
+    <div class="status"><span class="dot"></span> พร้อมใช้งาน</div>
   </div>
 </header>
 
 <main class="app">
   <section id="homeScreen" class="screen active">
     <div class="hero">
-      <div class="badge">CASE FILE // CLASSIFIED</div>
-      <h1>SQL <em>DETECTIVE</em></h1>
-      <p>ทำคดีทั้งหมดให้สำเร็จ แล้วใช้ SQL Blocks ไขปริศนา</p>
-      <button id="heroTutorialBtn" class="primary tutorial-hero-btn">เริ่ม Tutorial →</button>
+      <div class="badge"><span class="badge-dot"></span> INTERACTIVE SQL LAB</div>
+      <h1>คิดให้เป็นระบบ<br><em>สืบด้วย SQL</em></h1>
+      <p>เรียนรู้การเขียน Query ผ่านหลักฐาน ภารกิจ และคดีที่รอให้คุณคลี่คลาย</p>
+      <button id="heroTutorialBtn" class="primary tutorial-hero-btn">เริ่มฝึก SQL <span aria-hidden="true">→</span></button>
       <div class="progress-card">
-        <div class="progress-label"><span>CASE PROGRESS</span><strong id="progressText">0 / {{ cases|length }} CASES SOLVED</strong></div>
+        <div class="progress-label"><span>ความคืบหน้าทั้งหมด</span><strong id="progressText">0 / {{ cases|length }} CASES SOLVED</strong></div>
         <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
-        <button id="resetProgressBtn" class="reset-progress-btn">RESET ALL PROGRESS</button>
+        <button id="resetProgressBtn" class="reset-progress-btn">เริ่มความคืบหน้าใหม่</button>
       </div>
     </div>
 
+    <div class="section-heading">
+      <div>
+        <span class="section-kicker">CASE DIRECTORY</span>
+        <h2>เลือกคดีของคุณ</h2>
+      </div>
+      <span class="section-count">{{ cases|length }} คดี</span>
+    </div>
     <div class="cards">
       {% for id, c in cases.items() %}
       <button class="case-card" data-case="{{ id }}">
@@ -38,7 +50,7 @@
         <div class="case-no">{{ id|upper }}</div>
         <h2>{{ c.title }}</h2>
         <p>{{ c.story }}</p>
-        <div class="card-action">OPEN CASE →</div>
+        <div class="card-action">เปิดแฟ้มคดี <span>→</span></div>
       </button>
       {% endfor %}
     </div>
@@ -56,37 +68,36 @@
     <div class="case-navigation">
       <button id="previousCaseBtn" class="small-btn">← ข้อก่อนหน้า</button>
       <span id="casePosition" class="case-position"></span>
-      <button id="nextQuestionBtn" class="small-btn">ข้อถัดไป →</button>
     </div>
 
     <div class="layout">
       <aside class="briefing panel">
-        <h3>📁 CASE BRIEFING</h3>
+        <h3>CASE BRIEFING</h3>
         <p id="caseStory"></p>
         <div class="mission">
-          <strong>🎯 MISSION</strong>
+          <strong>MISSION</strong>
           <p id="caseObjective"></p>
         </div>
         <div class="guide">
-          <strong>🧭 HOW TO INVESTIGATE</strong>
+          <strong>HOW TO INVESTIGATE</strong>
           <p id="caseGuide"></p>
         </div>
         <div class="result-order">
-          <strong>📋 RESULT ORDER</strong>
+          <strong>RESULT ORDER</strong>
           <p>เรียงคอลัมน์ผลลัพธ์เป็น: <code id="resultOrder"></code></p>
         </div>
         <div class="hint">
-          <strong>💡 HINT</strong>
+          <strong>HINT</strong>
           <p id="caseHint"></p>
         </div>
 
         <div class="schema">
-          <h3>🗃 DATABASE</h3>
+          <h3>DATABASE SCHEMA</h3>
           <div id="schemaText"></div>
         </div>
 
         <div class="evidence">
-          <h3>🔎 EVIDENCE TABLES</h3>
+          <h3>EVIDENCE TABLES</h3>
           <div id="evidenceTables"></div>
         </div>
       </aside>
@@ -94,8 +105,8 @@
       <section class="workspace">
         <div class="panel query-panel">
           <div class="panel-title">
-            <span>🧩 BUILD YOUR SQL</span>
-            <button id="clearBtn" class="small-btn">CLEAR</button>
+            <span>BUILD YOUR SQL</span>
+            <button id="clearBtn" class="small-btn">ล้างทั้งหมด</button>
           </div>
 
           <div id="queryDrop" class="dropzone">
@@ -103,18 +114,18 @@
           </div>
 
           <div class="run-row">
-            <button id="runBtn" class="run-btn">▶ RUN QUERY</button>
-            <button id="starterBtn" class="small-btn">เติมคำตอบตัวอย่าง</button>
+            <button id="runBtn" class="run-btn"><span class="run-icon">▶</span> RUN QUERY</button>
+            <button id="nextQuestionBtn" class="small-btn">ข้อถัดไป →</button>
           </div>
         </div>
 
         <div class="panel blocks-panel">
-          <div class="panel-title"><span>🧱 SQL BLOCKS</span><span class="muted">ลากเพื่อประกอบคำตอบ</span></div>
+          <div class="panel-title"><span>SQL BLOCKS</span><span class="muted">คลิกหรือลากเพื่อประกอบคำตอบ</span></div>
           <div id="blockBank" class="block-bank"></div>
         </div>
 
         <div id="resultPanel" class="panel result-panel">
-          <div class="panel-title"><span>📟 QUERY RESULT</span><span id="resultStatus" class="muted">รอการรัน</span></div>
+          <div class="panel-title"><span>QUERY RESULT</span><span id="resultStatus" class="muted status-label">รอการรัน</span></div>
           <div id="resultContent" class="result-content empty">กด RUN QUERY เพื่อดูผลลัพธ์</div>
         </div>
       </section>
@@ -139,25 +150,25 @@
     </div>
     <div class="practice-layout">
       <div class="panel practice-lesson">
-        <h3>📚 บทเรียนสั้น ๆ</h3>
+        <h3>บทเรียนสั้น ๆ</h3>
         <div class="lesson-step active"><span>1</span><div><strong>SELECT</strong><p>เลือกคอลัมน์ที่อยากดู</p></div></div>
         <div class="lesson-step"><span>2</span><div><strong>FROM</strong><p>ระบุตารางที่จะค้นหา</p></div></div>
         <div class="lesson-step"><span>3</span><div><strong>WHERE</strong><p>กรองข้อมูลตามเงื่อนไข</p></div></div>
         <div class="practice-example"><strong>ภารกิจ</strong><p id="practiceMission">ค้นหาชื่อจากตาราง <code>people</code> ที่มี id เป็น 2</p></div>
         <div class="practice-data">
-          <h3>🗃 ข้อมูลสำหรับฝึก</h3>
+          <h3>ข้อมูลสำหรับฝึก</h3>
           <div id="practiceEvidence"></div>
         </div>
       </div>
       <div class="panel practice-workspace">
-        <div class="panel-title"><span>🧩 ประกอบ SQL ของคุณ</span><span id="practiceFeedback" class="muted">ลากบล็อกมาวางในกรอบ</span></div>
+        <div class="panel-title"><span>ประกอบ SQL ของคุณ</span><span id="practiceFeedback" class="muted">ลากบล็อกมาวางในกรอบ</span></div>
         <div id="practiceQuery" class="practice-query"><span class="drop-placeholder">ลากบล็อก SQL มาวางที่นี่…</span></div>
         <div id="practiceBlocks" class="block-bank practice-blocks"></div>
-        <div class="practice-actions"><button id="practiceResetBtn" class="small-btn">เริ่มใหม่</button><button id="practiceCheckBtn" class="run-btn">ตรวจคำตอบ</button></div>
+        <div class="practice-actions"><button id="practiceResetBtn" class="small-btn">ล้างคำตอบ</button><button id="practiceCheckBtn" class="run-btn">ตรวจคำตอบ</button></div>
         <div id="practiceResult" class="practice-result" hidden></div>
+        <div id="practiceNext" class="practice-next" hidden><span id="practiceNextText">พร้อมไปข้อต่อไปไหม?</span><button id="practiceCasesBtn" class="primary">ข้อต่อไป →</button></div>
       </div>
     </div>
-    <div id="practiceNext" class="practice-next" hidden><span>พร้อมแล้ว?</span><button id="practiceCasesBtn" class="primary">ไปเลือกคดีจริง →</button></div>
   </section>
 </main>
 
