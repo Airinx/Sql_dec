@@ -59,7 +59,8 @@ function addPracticeBlock(text, before=null){
   $("#practiceQuery .drop-placeholder")?.remove();
   const original = practiceExercises[currentExercise].blocks.find(block => block[0] === text);
   const block = makeBlock(text, original ? original[1] : "", true);
-  block.querySelector(".remove").onclick = () => {
+  block.querySelector(".remove").onclick = e => {
+    e.stopPropagation();
     block.remove();
     practiceSelection = getPracticeSelection();
     if(!$("#practiceQuery").querySelector(".query-block")) $("#practiceQuery").innerHTML = '<span class="drop-placeholder">ลากบล็อก SQL มาวางที่นี่…</span>';
@@ -264,13 +265,16 @@ function makeBlock(text, type, query=false){
   el.className = `sql-block ${type || ""} ${query ? "query-block" : ""}`;
   el.draggable = true;
   el.dataset.text = text;
-  el.innerHTML = `${escapeHtml(text)}${query ? '<span class="remove">✕</span>' : ''}`;
+  el.innerHTML = `${escapeHtml(text)}${query ? '<button type="button" class="remove" aria-label="ลบบล็อก SQL">×</button>' : ''}`;
   el.addEventListener("dragstart", e => {
     e.dataTransfer.setData("text/plain", text);
     el.classList.add("dragging");
   });
   el.addEventListener("dragend", () => el.classList.remove("dragging"));
-  if(query) el.querySelector(".remove").onclick = () => el.remove();
+  if(query) el.querySelector(".remove").onclick = e => {
+    e.stopPropagation();
+    el.remove();
+  };
   return el;
 }
 
