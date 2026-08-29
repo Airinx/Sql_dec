@@ -72,7 +72,7 @@
 
     <div class="layout">
       <aside class="briefing panel">
-        <h3>CASE BRIEFING</h3>
+        <h3>QUEST</h3>
         <p id="caseStory"></p>
         <div class="mission">
           <strong>MISSION</strong>
@@ -96,16 +96,17 @@
           <div id="schemaText"></div>
         </div>
 
-        <div class="evidence">
-          <h3>EVIDENCE TABLES</h3>
-          <div id="evidenceTables"></div>
-        </div>
       </aside>
 
       <section class="workspace">
+        <div class="evidence panel">
+          <div class="panel-title"><span>TABLE</span><span class="muted">หลักฐานจากฐานข้อมูล</span></div>
+          <div class="table-viewport"><div id="evidenceTables"></div></div>
+        </div>
+
         <div class="panel query-panel">
           <div class="panel-title">
-            <span>BUILD YOUR SQL</span>
+            <span>BUILD SQL</span>
             <button id="clearBtn" class="small-btn">ล้างทั้งหมด</button>
           </div>
 
@@ -150,19 +151,20 @@
     </div>
     <div class="practice-layout">
       <div class="panel practice-lesson">
-        <h3>บทเรียนสั้น ๆ</h3>
+        <h3>QUEST</h3>
         <div class="lesson-step active"><span>1</span><div><strong>SELECT</strong><p>เลือกคอลัมน์ที่อยากดู</p></div></div>
         <div class="lesson-step"><span>2</span><div><strong>FROM</strong><p>ระบุตารางที่จะค้นหา</p></div></div>
         <div class="lesson-step"><span>3</span><div><strong>WHERE</strong><p>กรองข้อมูลตามเงื่อนไข</p></div></div>
         <div class="practice-example"><strong>ภารกิจ</strong><p id="practiceMission">ค้นหาชื่อจากตาราง <code>people</code> ที่มี id เป็น 2</p></div>
-        <div class="practice-data">
-          <h3>ข้อมูลสำหรับฝึก</h3>
-          <div id="practiceEvidence"></div>
-        </div>
       </div>
       <div class="panel practice-workspace">
-        <div class="panel-title"><span>ประกอบ SQL ของคุณ</span><span id="practiceFeedback" class="muted">ลากบล็อกมาวางในกรอบ</span></div>
+        <div class="practice-data practice-table">
+          <div class="panel-title"><span>TABLE</span><span class="muted">ข้อมูลสำหรับฝึก</span></div>
+          <div class="table-viewport"><div id="practiceEvidence"></div></div>
+        </div>
+        <div class="panel-title"><span>BUILD SQL</span><span id="practiceFeedback" class="muted">ลากบล็อกมาวางในกรอบ</span></div>
         <div id="practiceQuery" class="practice-query"><span class="drop-placeholder">ลากบล็อก SQL มาวางที่นี่…</span></div>
+        <div class="panel-title practice-blocks-title"><span>SQL BLOCKS</span><span class="muted">คลิกหรือลากเพื่อประกอบคำตอบ</span></div>
         <div id="practiceBlocks" class="block-bank practice-blocks"></div>
         <div class="practice-actions"><button id="practiceResetBtn" class="small-btn">ล้างคำตอบ</button><button id="practiceCheckBtn" class="run-btn">ตรวจคำตอบ</button></div>
         <div id="practiceResult" class="practice-result" hidden></div>
