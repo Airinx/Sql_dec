@@ -1,0 +1,11 @@
+student_id,first_name,last_name,gender,gpa,course_id
+STU101,Alex,Smith,Male,3.85,C01
+STU102,Emma,Watson,Female,3.42,C02
+STU103,Liam,Brown,Male,2.9,C04
+STU104,Sophia,Davis,Female,3.65,C01
+STU105,Noah,Wilson,Male,2.75,C05
+STU106,Olivia,Taylor,Female,3.9,C03
+STU107,Ethan,Anderson,Male,3.1,C06
+STU108,Ava,Thomas,Female,3.25,C07
+STU109,Lucas,White,Male,2.8,C02
+STU110,Isabella,Harris,Female,3.55,C04
