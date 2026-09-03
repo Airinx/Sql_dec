@@ -11,7 +11,7 @@ CASES = {
     "case1": {
         "title": "เจไดไปหนายยยย?",
         "icon": "🐱",
-        "difficulty": "⭐",
+        "difficulty": "⭐⭐⭐",
         "story": "เจไดหายตัวไปจากบริเวณงานอย่างลึกลับ จงค้นหาว่าใครเป็นคนอุ้มเจได และเหตุการณ์เกิดขึ้นที่ไหน",
         "objective": "หาชื่อคนที่อุ้ม Jedi พร้อม action และ location ของเหตุการณ์",
         "guide": "เริ่มจาก events เพื่อหาแถวของ Jedi แล้ว JOIN people ด้วย person_id เพื่อเปลี่ยนรหัสเป็นชื่อคน",
@@ -59,7 +59,7 @@ CASES = {
     "case2": {
         "title": "ใครขโมยแว่นของ Harry Potter?",
         "icon": "👓",
-        "difficulty": "⭐",
+        "difficulty": "⭐⭐",
         "story": "แว่นของ Harry Potter ถูกวางไว้บนโต๊ะเวลา 15:00 น. แต่เมื่อกลับมาอีกครั้ง แว่นกลับหายไป จงสืบว่าใครเป็นคนขโมย",
         "objective": "หาชื่อคนที่ขโมยแว่นของ Harry Potter",
         "guide": "ดู events ที่ item เป็น Harry Potter glasses แล้ว JOIN people เพื่ออ่านชื่อจาก person_id อย่าสับสนกับคนที่แค่วางหรือมองแว่น",
@@ -103,7 +103,7 @@ CASES = {
     },
     "case3": {
         "title": "ใครเนียนเป็นเด็ก KDAI?",
-        "icon": "🪪",
+        "icon": "👀",
         "difficulty": "⭐",
         "story": "มีคนสแกนบัตรเข้า KDAI แต่ชื่อหนึ่งไม่ได้อยู่ในรายชื่อนักศึกษา KDAI จงหาว่าใครคือคนนั้น",
         "objective": "หาชื่อที่อยู่ใน card_scans แต่ไม่มีอยู่ใน students",
