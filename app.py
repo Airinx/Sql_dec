@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify
+from copy import deepcopy
+import random
 import sqlite3
 from pathlib import Path
 
@@ -225,7 +227,10 @@ def get_columns(conn, table):
 
 @app.route("/")
 def index():
-    return render_template("index.html", cases=CASES)
+    cases = deepcopy(CASES)
+    for case in cases.values():
+        random.shuffle(case["blocks"])
+    return render_template("index.html", cases=cases)
 
 
 @app.post("/api/run")
